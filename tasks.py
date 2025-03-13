@@ -10,11 +10,11 @@ import redis
 from bson import ObjectId
 from socket_server import email_processed
 # MongoDB setup
-client = pymongo.MongoClient("mongodb://157.173.199.49:25312/")
+client = pymongo.MongoClient("mongodb://192.168.1.8:25312/")
 db = client["mail_database"]
 collection = db["emails"]
 redis_client = redis.StrictRedis(
-    host='157.173.199.49',  # Redis server IP
+    host='192.168.1.8',  # Redis server IP
     port=6379,              # Redis server port
     db=0,                   # Redis database (0 by default)
     password="$2a$12$sDztpY8S1HX0NhnNNDcctezevP95TjwYJMkjHsA9anKzL7u92vUV2",  # Replace 'your_password' with the actual Redis password
@@ -49,7 +49,7 @@ sio = socketio.Client()
 def connect_to_socket():
     if not sio.connected:
         try:
-            sio.connect("http://157.173.199.49:8765")
+            sio.connect("http://192.168.1.8:8765")
             print("Connected successfully!")
         except Exception as e:
             print(f"Error connecting to socket: {e}")

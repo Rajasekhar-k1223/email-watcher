@@ -6,8 +6,8 @@ safe_password = quote(password)
 # Create a Celery app
 celery_app = Celery(
     'tasks', 
-    broker=f'redis://:{safe_password}@157.173.199.49:6379/0',
-    backend=f'redis://:{safe_password}@157.173.199.49:6379/0'
+    broker=f'redis://:{safe_password}@192.168.1.6:6379/0',
+    backend=f'redis://:{safe_password}@192.168.1.6:6379/0'
 )
 
 # Configure Celery (optional)

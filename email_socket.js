@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://127.0.0.1:3000','http://157.173.199.49:3000',"https://mail.imailler.com","*"], // Adjust for your frontend
+    origin: ['http://127.0.0.1:3000','http://localhost:3000','http://localhost:3001','https://192.168.1.8:3000','http://157.173.199.49:3000',"https://mail.imailler.com","*"], // Adjust for your frontend
     methods: ["GET", "POST"],
   },
 });
@@ -16,7 +16,7 @@ const io = new Server(server, {
 // Configure Redis client with authentication
 const redisClient = createClient({
   socket: {
-    host: "157.173.199.49",
+    host: "192.168.1.6",
     port: 6379,
   },
   password: "$2a$12$sDztpY8S1HX0NhnNNDcctezevP95TjwYJMkjHsA9anKzL7u92vUV2", // Redis password
@@ -27,10 +27,12 @@ redisClient.connect().then(() => console.log("Connected to Redis"));
 
 // Listen for Socket.IO events
 io.on("connection", (socket) => {
-  console.log(`Client connected: ${socket.id}`);
-
+  // console.log(socket)
+  // console.log(`Client connected: ${socket.id}`);
+  console.log(socket)
   // Store socket ID in Redis
  socket.on("register_client", async (userId) => {
+  console.log(userId)
   try {
     // Store socket ID as a string
     await redisClient.set(userId, socket.id);
@@ -66,8 +68,25 @@ io.on("connection", (socket) => {
   } catch (err) {
     console.error("Error handling email_inserted:", err);
   }
-});
+  });
 
+  socket.on("callUser", async (data) => {
+    // console.log(data)
+    const socketId = await redisClient.get(data.userToCall);
+    // console.log(data)
+    // console.log(data.userToCall)
+    if(socketId) { 
+      io.to(socketId).emit("callUser", {
+        signal: data.signalData,
+        from: data.from,
+    });
+    }
+    
+  });
+
+ socket.on("answerCall", (data) => {
+    io.to(data.to).emit("callAccepted", data.signal);
+  });
   // Handle disconnection
   socket.on("disconnect", async () => {
   console.log(`Client disconnected: ${socket.id}`);
